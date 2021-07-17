@@ -1,3 +1,5 @@
+![rust](https://github.com/anomalyze/jereeeme/actions/workflows/rust.yml/badge.svg)
+
 # Jereee.me site
 
 This is just my blog over at [https://jereee.me](https://jereee.me). Wrote this project to learn Rust and to motivate myself to keep finding new projects and write about them.
