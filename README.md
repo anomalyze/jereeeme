@@ -9,5 +9,5 @@ This is just my blog over at [https://jereee.me](https://jereee.me). Wrote this 
 * add metrics
 * ~~add logging~~
 * ~~add dockerfile~~
-* add test cases
+* ~~add test cases~~
 * add more content!
