@@ -16,7 +16,8 @@ async fn main() -> std::io::Result<()> {
                     .header("X-Frame-Options", "SAMEORIGIN")
                     .header("X-XSS-Protection", "1; mode=block")
                     .header("X-Content-Type-Options", "nosniff")
-                    .header("Content-Type", "text/html"),
+                    .header("Content-Type", "text/html")
+                    .header("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
             )
             .service(home)
             .service(about)
