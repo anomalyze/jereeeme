@@ -233,34 +233,34 @@ mod tests {
     pub fn test_template_load() {
         //arrange
         //act
-        let header = Template::Header.load().unwrap();
-        let footer = Template::Footer.load().unwrap();
+        let header = Template::Header.load();
+        let footer = Template::Footer.load();
 
         //assert
-        assert_eq!(header, "<html>\n    <head>\n        <title>jereee.me</title>\n        <link rel=\"stylesheet\" href=\"/assets/styles.css\">\n        <meta charset=\"utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    </head>\n    <body>\n\t    <div class=topnav><p class=header>jereee.me | <a href=\"/\">home</a> | <a href=\"/about\">about</a> | <a href=\"/contact\">contact</a> | <a href=\"https://github.com/anomalyze\">github</a> | <a href=\"https://sr.ht/~anomaly/\">sourcehut</a></p>\n        </div>\n        <div class=container>\n            <div class=side></div>\n            <div class=child>\n");
-        assert_eq!(footer, "            </div>\n            <div class=side></div>\n        </div>\n    </body>\n</html>\n");
+        assert!(header.is_ok());
+        assert!(footer.is_ok());
     }
 
     #[test]
     pub fn test_blog_load() {
         //arrange
         //act
-        let home = Blog::Home.load().unwrap();
+        let home = Blog::Home.load();
 
         //assert
-        assert_eq!(home,"<p>ramblings from working in infosec, red teaming, fun with automation and homelab adventures.</p>\n");
+        assert!(home.is_ok());
     }
 
     #[test]
     pub fn test_blog_build() {
         //arrange
         //act
-        let home = Blog::Home.build().unwrap();
-        let about = Blog::About.build().unwrap();
+        let home = Blog::Home.build();
+        let about = Blog::About.build();
 
         //assert
-        assert_eq!(home,"<html>\n    <head>\n        <title>jereee.me</title>\n        <link rel=\"stylesheet\" href=\"/assets/styles.css\">\n        <meta charset=\"utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    </head>\n    <body>\n\t    <div class=topnav><p class=header>jereee.me | <a href=\"/\">home</a> | <a href=\"/about\">about</a> | <a href=\"/contact\">contact</a> | <a href=\"https://github.com/anomalyze\">github</a> | <a href=\"https://sr.ht/~anomaly/\">sourcehut</a></p>\n        </div>\n        <div class=container>\n            <div class=side></div>\n            <div class=child>\n<p>ramblings from working in infosec, red teaming, fun with automation and homelab adventures.</p>\n<a href=\"./articles/20210715-Only-the-beginning.md\"><h2>Only the beginning...\n</h2></a><p>15 July 2021</p><p><p>Well...I've finally done it. I've actually got around to building my first blog. Now the question lies &quot;What to write about?&quot;. Well since we're only starting this journey, how about we st...</p><a href=\"./articles/20210713-Blog-Two.md\"><h2>Blog Two\n</h2></a><p>13 July 2021</p><p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas risus massa, commodo id blandit ut, rhoncus ac nisl. Nullam vitae venenatis tellus. Etiam malesuada a magna accumsan laoreet. Proin...</p><a href=\"./articles/20210712-Blog-Juan.md\"><h2>Blog juan\n</h2></a><p>12 July 2021</p><p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas risus massa, commodo id blandit ut, rhoncus ac nisl. Nullam vitae venenatis tellus. Etiam malesuada a magna accumsan laoreet. Proin...</p>            </div>\n            <div class=side></div>\n        </div>\n    </body>\n</html>\n");
-        assert_eq!(about,"<html>\n    <head>\n        <title>jereee.me</title>\n        <link rel=\"stylesheet\" href=\"/assets/styles.css\">\n        <meta charset=\"utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    </head>\n    <body>\n\t    <div class=topnav><p class=header>jereee.me | <a href=\"/\">home</a> | <a href=\"/about\">about</a> | <a href=\"/contact\">contact</a> | <a href=\"https://github.com/anomalyze\">github</a> | <a href=\"https://sr.ht/~anomaly/\">sourcehut</a></p>\n        </div>\n        <div class=container>\n            <div class=side></div>\n            <div class=child>\n<h2>about</h2>\n<p>The names Jeremy, I've been working in InfoSec since 2015, working mostly in red teaming these days. I spend my free time automating all the things, and forever learning. If you want to learn a little bit more about me you can check out my first blog post <a href=\"/articles/20210715-Only-the-beginning.md\">here</a></p>\n<h2>work experience</h2>\n<p>Lead Security Consultant - Jul 2020 - current</p>\n<p>Security Consultant - Jun 2016 - Jun 2020</p>\n<p>Junior Security Consultant - Aug 2015 - Jun 2016</p>\n<h2>notable projects</h2>\n<ul>\n<li>Automated red team infrastructure - Terraform, AWS, Docker, Wireguard\n<ul>\n<li>Worked on this project in collaboration with another colleague. It automates all our tooling used for red teams. This includes all phishing infrastructure, including mail servers, dns, redirectors, command and control, and vpns. Unfortunately, I'm not at liberty to share this one with you all.</li>\n</ul>\n</li>\n<li><a href=\"https://github.com/anomalyze/bookmarkd\">bookmarkd</a> - Rust, Docker\n<ul>\n<li>I built this little daemon because I was getting annoyed that I couldn't save bookmarks on one machine and not access them on another. It basically just sits on the network, and I can access it via a CLI tool which I also build. This was mainly just to find a project to work on to learn rust.</li>\n</ul>\n</li>\n<li><a href=\"https://github.com/anomalyze/jereeeme\">jereee.me</a> - Rust\n<ul>\n<li>Thie site is written in 90% rust, while the remaining is just a bit of HTML, CSS and lots of Markdown. This was another project I built, mostly just to learn Rust, but I thoroughly enjoyed trying to figure out how to create a template engine and minimise writing as much HTML, CSS as possible. There's probably a few bugs here and there, but it's only the first iteration.</li>\n</ul>\n</li>\n</ul>\n            </div>\n            <div class=side></div>\n        </div>\n    </body>\n</html>\n");
+        assert!(home.is_ok());
+        assert!(about.is_ok());
     }
 
     #[test]
