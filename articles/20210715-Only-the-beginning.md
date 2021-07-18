@@ -13,7 +13,7 @@ If you haven't guessed already, my name is Jeremy, and I've been working in Info
 
 These days I find myself residing in chilly New Zealand. After some personal woes back home in Australia. Unfortunately with COVID still around it's not easy to go visit home all too often, but it's nice to think that I'm just across the pond. Being able to work remotely has definitely been a plus, and I'm thankful that I can even do that...I guess that's one positive thing that has happened since COVID? Since being here, I got to check out the [Weta Workshop](https://www.wetaworkshop.com/), which is basically Disneyland for all you Lord of the Rings nerds like me, got to experience my first day of snow fall, and just lived internationally for the first time. It's been quite the adventure, but I'm looking forward to more.
 
-### while: do things; done?
+### while true; do things; done?
 
 Since leaving Australia, I've had to leave my homelab behind. So naturally I find myself wishing I had one down here. Eventually I will get around to maybe just settling for an Intel NUC (I've got rackservers back home) and installing a type 1 hypervisor on it, like [Proxmox](https://www.proxmox.com/en/proxmox-ve) or just plain [libvirt](https://libvirt.org/). With whatever free time I have these days, I've been quite productive. I've been diving deeper into linux internals, learning [Rust](https://www.rust-lang.org/), and writing small programs to continue developing and learning. It's been a bit difficult to select some projects, as I'm finding the limiting factor is that I no longer have a homelab to spin something up and do some testing, but alas I've kept it going by settling for kvm on my laptop and reading books on rust and linux.
 
