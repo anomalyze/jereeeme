@@ -3,15 +3,15 @@ title: Smooth ROPerator
 date: 20210723
 -->
 
-I've recently been studying to complete my SANS GIAC Exploit Researcher and Advanced Penetration Tester (GXPN) certificate so I thought I might get a little bit of practice in looking for some progressive ROP chain challenges.
+I've recently been studying to complete my SANS GIAC Exploit Researcher and Advanced Penetration Tester (GXPN) certificate. I thought I might get a little bit of practice in looking for some progressive ROP chain challenges.
 
 I stumbled upon the site [ropemporium](https://ropemporium.com/) which is basically exactly what I was looking for. For those of you unsure what a ROP chain is, ROP stands for Return Orientated Programming. It's basically a technique used to bypass protections against a binary which prevents execution of memory. The technical term for this protection is [Executable Space Protection](https://en.wikipedia.org/wiki/Executable_space_protection). It is one of many techniques required to learn when writing exploits and it's pretty fun when you get the hang of it.
 
-The basic idea behind ROP is if you have an executable that you can overflow using user input, but it has Non-eXecutable Stack Protection (NX) , then you can use a ROP chain. Why you ask? Well because if you are able to write to memory, but not execute, then maybe you can overwrite a memory address in the stack, which already has permission to execute. To do this, we utilise libraries, which are usually available in standard operating systems. As these libraries are loaded as dependencies at runtime we can grab certain functions from them and provide arguments using the memory we can write. It's all a bit confusing if you have never seen it in action, but hopefully this post gives you some inspiration and motivation to work on it yourself.
+The basic idea behind ROP is if you have an executable that you can overflow using user input, but it has Non-eXecutable Stack Protection (NX) , then you can use a ROP chain. Why, you ask? If you are able to write to memory, but not execute, then maybe you can overwrite a memory address in the stack, which already has permission to execute. To do this we utilise libraries, which are usually available in standard operating systems. As these libraries are loaded as dependencies at runtime we can grab certain functions from them and provide arguments using the memory we can write. It's all a bit confusing if you have never seen it in action, but hopefully this post gives you some inspiration and motivation to work on it yourself.
 
 ### DON'T DEAD; OPEN INSIDE
 
-Just a word of caution. When doing these exercises it's always a good idea to create a new virtual machine for your playground. Afterall, you're downloading random binaries off the Internet and executing them. It's usually a good idea to at least keep that off your normal system. For this post, i'm using a plain Debian build, so feel free to copy and paste the apt-get commands.
+Just a word of caution. When doing these exercises it's always a good idea to create a new virtual machine for your playground. Afterall, you're downloading random binaries off the Internet and executing them. It's usually a good idea to at least keep that off your normal system. For this post, I'm using a plain Debian build, so feel free to copy and paste the apt-get commands.
 
 ### tools
 
@@ -145,7 +145,7 @@ SYNOPSIS
 The system() library function uses fork(2) to create a child process that executes the shell command specified in command using execl(3) as follows:
 ```
 
-Okay so this basically gives us command execution, all it requires is you pass it 1 argument which contains your command. We can verify this from the disassembled function. I've copied it below to make it easier to read:
+This basically gives us command execution, all it requires is you pass it 1 argument which contains your command. We can verify this from the disassembled function. I've copied it below to make it easier to read:
 ```
    0x0000000000400764 <+14>:	mov    edi,0x400943          <-- Move into edi, whatever is in 0x400943
    0x0000000000400769 <+19>:	call   0x400560 <system@plt> <-- Execute system()
@@ -156,7 +156,7 @@ Let's take a look at what is in that memory address, using eXamine like we did b
 gdb-peda$ x/s 0x400943
 0x400943:	"/bin/cat flag.txt"
 ```
-So basically this function calls system(/bin/cat flag.txt) which is exactly what we want to achieve. This means that we need to identify the address of this function and then figure out for the binary to divert to this address.
+This function calls system(/bin/cat flag.txt) which is exactly what we want to achieve. This means that we need to identify the address of this function and then figure out for the binary to divert to this address.
 
 We can simply run the following inside gdb to find the address of the function:
 ```
@@ -164,7 +164,7 @@ gdb-peda$ info addr ret2win
 Symbol "ret2win" is at 0x400756 in a file compiled without debugging.
 ```
 
-Great now we know that the address for ret2win is at 0x400756. Okay now let's work out how to gain control of the execution flow. This program takes user input from stdin so, let's just chuck some data in there and see what happens. For this next part we'll just feed the program 100 A's using python. I've broken up the output of this next command to help understand it bit by bit:
+Great now we know that the address for 'ret2win' is at 0x400756. Now let's work out how to gain control of the execution flow. This program takes user input from stdin so, let's just chuck some data in there and see what happens. For this next part we'll just feed the program 100 A's using python. I've broken up the output of this next command to help understand it bit by bit:
 ```
 gdb-peda$ run < <(python -c 'print("A"*100)')
 Starting program: /home/user/Downloads/ropemporium/ret2win < <(python -c 'print("A"*100)')
@@ -180,7 +180,7 @@ You there, may I have your input please? And don't worry about null bytes, we're
 Program received signal SIGSEGV, Segmentation fault.
 ```
 
-So, when we provided the program 100 A's it crashed the program. This is exactly what we want. That means, the data we provided, must have overwritten some address required on the stack. Let's take a look at the registers:
+So, when we provided the program 100 A's it crashed the program. This is exactly what we want. That means the data we provided must have overwritten some address required on the stack. Let's take a look at the registers:
 
 ```
 [----------------------------------registers-----------------------------------]
@@ -305,7 +305,7 @@ Well done! Here's your flag:
 ROPE{a_placeholder_32byte_flag!}
 ```
 
-Awesome, so we completed our first of many ROP chains. I hope this has helped you on your journey, and given you a bit little bit of motivation to learn more.
+Awesome, so we completed our first of many ROP chains. I hope this has helped you on your journey, and gives you a bit little bit of motivation to learn more.
 
 -Jeremy
 
