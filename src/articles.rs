@@ -62,7 +62,7 @@ impl Blog {
             }
             Self::Articles(p) => {
                 info!("opening file: {}", p);
-                format!("./articles/{}", p)
+                format!("./articles/{}.md", p)
             }
         })?;
         let mut buf = BufReader::new(f);
@@ -129,7 +129,7 @@ impl Article {
         let mut articles = Vec::with_capacity(10);
         for path in paths {
             articles.push(Article::summarize(
-                &path.unwrap().path().display().to_string(),
+                &path?.path().display().to_string().trim_end_matches(".md"),
             )?);
         }
         articles.sort();
@@ -164,7 +164,7 @@ impl Article {
     /// takes a file path and converts it to a type article
     pub fn summarize(path: &str) -> Result<Article, std::io::Error> {
         info!("opening file: {}", path);
-        let f = File::open(path)?;
+        let f = File::open(format!("{}.md", path))?;
         let mut buf = BufReader::new(f);
         // create a temporary file to store unwanted lines.
         // haven't really found another way to do this.
