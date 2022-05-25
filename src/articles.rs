@@ -1,4 +1,3 @@
-use actix_web::HttpResponse;
 use chrono::NaiveDate;
 use comrak::{markdown_to_html, ComrakOptions};
 use std::cmp::Ordering;
@@ -63,7 +62,7 @@ impl Blog {
             }
             Self::Articles(p) => {
                 info!("opening file: {}", p);
-                p.to_string()
+                format!("./articles/{}", p)
             }
         })?;
         let mut buf = BufReader::new(f);
@@ -140,24 +139,24 @@ impl Article {
 
     /// composes the article page, using templates or
     /// provides a standard error message page
-    pub fn build(page: &str) -> Result<HttpResponse, HttpResponse> {
+    pub fn build(page: &str) -> Result<String, anyhow::Error> {
         let header = Template::Header.load().expect("Unable to load template");
         let footer = Template::Footer.load().expect("Unable to load template");
         let article = Article::summarize(&format!("{}", page));
         match article {
             Ok(page) => {
                 info!("article | response: found");
-                Ok(HttpResponse::Ok().body(format!(
+                Ok(format!(
                     "{}<h1>{}</h1>\n{}\n{}{}",
                     header, page.title, page.date, page.content, footer
-                )))
+                ))
             }
             Err(_) => {
                 error!("article | response: error");
-                Err(HttpResponse::NotFound().body(format!(
+                Ok(format!(
                     "{}<h2>Oops, this shit is bananas</h2>{}",
                     header, footer
-                )))
+                ))
             }
         }
     }
@@ -273,18 +272,6 @@ mod tests {
 
         //assert
         assert_eq!(articles.unwrap().iter().count(), count);
-    }
-
-    #[test]
-    pub fn test_article_build() {
-        //arrange
-        let page = "tests/test_file.md".to_string();
-
-        //act
-        let article = Article::build(&page).unwrap();
-
-        //assert
-        assert_eq!(article.status(), 200);
     }
 
     #[test]
