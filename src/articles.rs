@@ -142,7 +142,7 @@ impl Article {
     pub fn build(page: &str) -> Result<String, anyhow::Error> {
         let header = Template::Header.load().expect("Unable to load template");
         let footer = Template::Footer.load().expect("Unable to load template");
-        let article = Article::summarize(&format!("{}", page));
+        let article = Article::summarize(page);
         match article {
             Ok(page) => {
                 info!("article | response: found");
@@ -192,7 +192,7 @@ impl Article {
             .to_string();
 
         let content = markdown_to_html(
-            &String::from_utf8(raw_content).unwrap().to_owned(),
+            &String::from_utf8(raw_content).unwrap(),
             &ComrakOptions::default(),
         );
 

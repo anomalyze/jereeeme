@@ -1,11 +1,6 @@
-use axum::{
-    BoxError,
-    extract::Path,
-    http::StatusCode,
-    response::Html,
-};
-use tracing::info;
 use crate::articles::*;
+use axum::{extract::Path, http::StatusCode, response::Html, BoxError};
+use tracing::info;
 
 pub async fn home() -> Html<String> {
     info!("home    | request");
