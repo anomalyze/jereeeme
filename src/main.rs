@@ -18,7 +18,7 @@ async fn main() {
     let mut default_headers = HeaderMap::new();
     default_headers.insert(header::X_FRAME_OPTIONS, HeaderValue::from_static("SAMEORIGIN"));
     default_headers.insert(header::STRICT_TRANSPORT_SECURITY, HeaderValue::from_static("max-age=16070400; includeSubDomains"));
-    default_headers.insert(header::CONTENT_SECURITY_POLICY, HeaderValue::from_static("default-src 'self';"));
+    default_headers.insert(header::CONTENT_SECURITY_POLICY, HeaderValue::from_static("default-src 'self'; script-src 'nonce-20eaa6d0488e36261c88da7967d4ab0a35d7915b';"));
     default_headers.insert(header::X_XSS_PROTECTION, HeaderValue::from_static("1; mode=block"));
     default_headers.insert(header::X_CONTENT_TYPE_OPTIONS, HeaderValue::from_static("nosniff"));
             
