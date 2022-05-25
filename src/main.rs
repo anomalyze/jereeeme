@@ -6,7 +6,6 @@ use axum::{
 };
 use tower::ServiceBuilder;
 use tower_default_headers::DefaultHeadersLayer;
-//use tracing_subscriber;
 use std::time::Duration;
 
 pub mod articles;
